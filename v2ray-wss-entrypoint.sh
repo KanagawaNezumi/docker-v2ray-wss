@@ -7,78 +7,61 @@ domain=$1 ; access=$2 ; email=$3 ; uid=$4; url=$5
 [[ ! $url ]] && url=https://github.com/trending
 [[ ! $email ]] && email=example@gmail.com
 
-if [[ ! $uid ]]; then
-    # 当用户未传入UID变量时, 生成随机uuid并保存
-    if [[ ! -e /v2ray-uid ]]; then
-        uid=`uuidgen`
-        echo $uid > /v2ray-uid
-    else
-        uid=`cat /v2ray-uid`
-    fi
+echo -e "domain: $domain\npath: $access\nemail: $email\nid: $uid"
+
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+# 下载伪装页, 并尽量使其链接可访问
+if [[ $url != "none" ]];then
+    mkdir -p /usr/share/nginx/html
+    echo "下载伪装页, 并尝试补全链接"
+    wget $url -nv -O /usr/share/nginx/html/index.html && python repair_link.py $url
 fi
 
-echo "domain: $domain\n path: $access\n email: $email\n id: $uid"
-
-# 设置公钥私钥路径
+# 公钥, 私钥, 证书链路径
 publickey="/etc/letsencrypt/live/$domain/fullchain.pem"
 priviatekey="/etc/letsencrypt/live/$domain/privkey.pem"
+chain="/etc/letsencrypt/live/$domain/chain.pem"
 
-is_certed(){
-    if [[ -e $publickey && -e $priviatekey ]]; then 
-        certed="true"
-    else
-        certed=""
-    fi
-}
-
-# 检测证书文件是否存在
-is_certed
-
-if [[ $certed ]]; then
-    echo 证书文件: $publickey && echo 私钥文件: $priviatekey
+if [[ -e $publickey && -e $priviatekey && -e $chain ]]; then
+    echo 证书: $publickey && echo 私钥: $priviatekey && echo 证书链: $chain
 else 
-    # 无证书, 使用cetbot申请证书
     certbot certonly --standalone --domain $domain --agree-tos -n --email $email
 fi
 
-# 再次检测证书
-is_certed
-
-if [[ $certed ]]; then
-    # 映射证书, 重启容器, 或申请证书, 此时均应持有证书, 若无, 退出
-
+if [[ -e $publickey && -e $priviatekey && -e $chain ]]; then
+    # 映射证书, 重启容器, 或申请证书, 此时均应持有证书
+    
     # 首先检查标志, 确认是否是初次运行容器
     if [[ ! -e /KanagawaNezumi.flag ]]; then
-        
-        # 初次运行, 执行文件替换
+        # 生成随机uuid
+        [[ ! $uid ]] && uid=`uuidgen`
+        # 移动配置
         mv ./nginx.conf /etc/nginx/nginx.conf
         mv ./v2ray-wss-config.json /etc/v2ray/config.json
         mv ./v2ray-wss-cli-config.json /etc/v2ray/v2ray-wss-cli-config.json
-
-        # 使用sed命令将其中的变量替换真正的域名和路径
+        # 进行 nginx 设置
         sed -i -e "s/\$access/$access/g" -e "s/\$domain/$domain/g" /etc/nginx/nginx.conf
-
-        # 获得伪装页, 并替换为默认首页index.html
-        if [[ $url != "none" ]];then
-            wget -q $url -O /usr/share/nginx/html/index.html 
-        fi
-
-        # 修改v2ray配置, 包括替换服务端配置, 并替换生成客户端推荐配置
+        # 进行 v2ray 服务端设置
         sed -i -e "s/\$uid/$uid/g" -e "s/\$access/$access/g" /etc/v2ray/config.json # 重写 id和path
+        # 进行 v2ray 客户端设置
         sed -i -e "s/\$uid/$uid/g" -e "s/\$access/$access/g" -e "s/\$domain/$domain/g" /etc/v2ray/v2ray-wss-cli-config.json
-
-        echo -e "你的域名: $domain\n你的路径: $access\n你的id: $uid\n推荐安卓客户端: Kitsunebi\n推荐的客户端配置(通用):"
+        # 打印客户端配置
+        echo -e "域名: $domain\n路径: $access\nid: $uid\n推荐安卓客户端: Kitsunebi\n生成的客户端配置(通用, 包含路由):"
         echo -e "#======================================================================================#"
         cat /etc/v2ray/v2ray-wss-cli-config.json
-        echo -e "#======================================================================================#\n"
-        # 设置一个标志, 代表配置已重写, 下次重启容器可以直接运行v2ray和nginx
+        echo -e "#======================================================================================#"
+        # 设置一个标志, 代表配置已重写, 下次重启容器可以直接运行 v2ray 和 nginx
         echo "surfing" > /KanagawaNezumi.flag
     fi
-
 else
-    echo " 当前域名$domain 无本地证书, 且证书申请失败" && exit 1
+    echo " 当前域名 $domain 无本地证书, 且证书申请失败" && exit 1
 fi
 
-echo "启动v2ray主程序和nginx进程"
-nohup /usr/bin/v2ray -config /etc/v2ray/config.json &
+echo "启动 v2ray 主程序"
+nohup /usr/bin/v2ray -config /etc/v2ray/config.json > v2ray.log &
+echo "启动 certbot 更新程序"
+nohup sh -c "while sleep 86400; do certbot renew --quiet; done > renew.log" &
+echo "启动 Nginx 主程序"
+echo "访问 ${domain}/files 下载可执行文件"
 nginx -g "daemon off;"

@@ -1,31 +1,30 @@
 {
-    "inbounds": [
-      {
-        "port": 6324,
-        "listen":"127.0.0.1", 
-        "protocol": "vmess",
-        "settings": {
-          "clients": [
-            {
-              "id": "$uid",
-              "level": 1,
-              "alterId": 64
-            }
-          ]
-        },
-        "streamSettings": {
-          "network": "ws",
-          "wsSettings": {
-          "path": "/$access"
+  "inbounds": [
+    {
+      "port": 6324,
+      "listen":"127.0.0.1", 
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "$uid",
+            "level": 1,
+            "alterId": 64
           }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "wsSettings": {
+        "path": "/$access"
         }
       }
-    ],
-    "outbounds": [
-      {
-        "protocol": "freedom",
-        "settings": {}
-      }
-    ]
-  }
-  
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "freedom",
+      "settings": {}
+    }
+  ]
+}
