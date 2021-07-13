@@ -9,8 +9,6 @@ domain=$1 ; access=$2 ; email=$3 ; uid=$4; url=$5
 
 echo -e "domain: $domain\npath: $access\nemail: $email\nid: $uid"
 
-echo "nameserver 8.8.8.8" > /etc/resolv.conf
-
 # 下载伪装页, 并尽量使其链接可访问
 if [[ $url != "none" ]];then
     mkdir -p /usr/share/nginx/html
