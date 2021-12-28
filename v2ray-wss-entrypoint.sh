@@ -59,7 +59,8 @@ fi
 echo "启动 v2ray 主程序"
 nohup /usr/bin/v2ray -config /etc/v2ray/config.json > v2ray.log &
 echo "启动 certbot 更新程序"
-nohup sh -c "while sleep 86400; do certbot renew --quiet; done > renew.log" &
+nohup sh -c "while sleep 86400; do certbot renew; done > renew.log" &
+nohup sh -c "while sleep 86400; do nginx -s reload; done > nginx-reload.log" &
 echo "启动 Nginx 主程序"
 echo "访问 ${domain}/files 下载可执行文件"
 nginx -g "daemon off;"
