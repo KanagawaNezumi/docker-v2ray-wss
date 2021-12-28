@@ -37,6 +37,10 @@
                 "wsSettings": {
                     "path": "/$access"
                 }
+            },
+            "mux": {
+                "enabled": true, 
+                "concurrency": 128
             }
         },
 
