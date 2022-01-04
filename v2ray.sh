@@ -1,6 +1,6 @@
 #!/bin/sh
 
-TAG=`wget https://github.com/v2fly/v2ray-core/tags -q -O - | egrep -o "(v[0-9]{1}\.[0-9]{1,2}\.[0-9]{1,2})" | head -n 1`
+TAG=`wget https://github.com/v2fly/v2ray-core/tags -q -O - | egrep -o "(v4\.[0-9]{1,2}\.[0-9]{1,2})" | head -n 1`
 
 echo "Downloading binary file: v2ray ${TAG}"
 
