@@ -6,7 +6,7 @@ url = sys.argv[1]
 
 file = '/usr/share/nginx/html/index.html'
 
-print('Index path:', file)
+# print('Index path:', file)
 
 if url.startswith('http'):
     parsed_url = urllib.parse.urlparse(url)
@@ -18,13 +18,13 @@ else:
 
 base_url = f'{scheme}://{netloc}/'
 
-print('Base url:', base_url)
+# print('Base url:', base_url)
 
 with open(file, 'r+', encoding='utf-8') as fp:
     data = ''.join(fp.readlines())
-    print('Data length:', len(data))
+    # print('Data length:', len(data))
     new_data = re.sub(r'href=("|\')/?([^wh].+?)("|\')', r'href="{}\2"'.format(base_url), data)
-    print('Data length repaired:', len(new_data))
+    # print('Data length repaired:', len(new_data))
 
 with open(file, 'w', encoding='utf-8') as fp:
     fp.write(new_data)

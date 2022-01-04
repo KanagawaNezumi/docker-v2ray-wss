@@ -11,8 +11,12 @@ echo -e "domain: $domain\npath: $access\nemail: $email\nid: $uid"
 
 # 下载伪装页, 并尽量使其链接可访问
 if [[ $url != "none" ]];then
+    if [[ ! -e /KanagawaNezumi.flag ]]; then
+        echo "下载伪装页, 并尝试补全链接..."
+    else
+        echo "刷新伪装页, 并尝试补全链接..."
+    fi
     mkdir -p /usr/share/nginx/html
-    echo "下载伪装页, 并尝试补全链接"
     wget $url -nv -O /usr/share/nginx/html/index.html && python repair_link.py $url
 fi
 
@@ -49,18 +53,17 @@ if [[ -e $publickey && -e $priviatekey && -e $chain ]]; then
         echo -e "#======================================================================================#"
         cat /etc/v2ray/v2ray-wss-cli-config.json
         echo -e "#======================================================================================#"
-        # 设置一个标志, 代表配置已重写, 下次重启容器可以直接运行 v2ray 和 nginx
-        echo "surfing" > /KanagawaNezumi.flag
     fi
 else
     echo " 当前域名 $domain 无本地证书, 且证书申请失败" && exit 1
 fi
 
-echo "启动 v2ray 主程序"
+if [[ ! -e /KanagawaNezumi.flag ]]; then
+    echo "启动 v2ray 主程序, certbot 更新程序, 以及 Nginx 主程序..."
+    echo "访问 https://${domain}/files 下载可执行文件"
+    echo "surfing" > /KanagawaNezumi.flag
+fi
 nohup /usr/bin/v2ray -config /etc/v2ray/config.json > v2ray.log &
-echo "启动 certbot 更新程序"
 nohup sh -c "while sleep 86400; do certbot renew; done > renew.log" &
 nohup sh -c "while sleep 86400; do nginx -s reload; done > nginx-reload.log" &
-echo "启动 Nginx 主程序"
-echo "访问 ${domain}/files 下载可执行文件"
 nginx -g "daemon off;"
