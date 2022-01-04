@@ -25,7 +25,7 @@
                         "users": [
                             {
                                 "id": "$uid",
-                                "alterId": 64
+                                "alterId": 0
                             }
                         ]
                     }
