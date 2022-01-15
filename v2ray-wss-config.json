@@ -8,15 +8,14 @@
         {
             "port": 6324,
             "listen":"127.0.0.1", 
-            "protocol": "vmess",
+            "protocol": "vless",
             "settings": {
                 "clients": [
                     {
-                        "id": "$uid",
-                        "level": 1,
-                        "alterId": 0
+                        "id": "$uid"
                     }
-                ]
+                ],
+                "decryption": "none"
             },
             "streamSettings": {
                 "network": "ws",

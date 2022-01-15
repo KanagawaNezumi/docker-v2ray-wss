@@ -16,7 +16,7 @@
     ],
     "outbounds": [
         {
-            "protocol": "vmess",
+            "protocol": "vless",
             "settings": {
                 "vnext": [
                     {
@@ -25,7 +25,7 @@
                         "users": [
                             {
                                 "id": "$uid",
-                                "alterId": 0
+                                "encryption":"none"
                             }
                         ]
                     }
