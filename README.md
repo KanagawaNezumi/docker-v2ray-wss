@@ -13,19 +13,23 @@ docker run \
     kanagawanezumi/v2ray-wss
 ```
 
-运行时会自动打印客户端配置, 复制完毕后, 断开命令行即可.
+运行时会自动打印相关信息及客户端配置, 复制完毕后, 断开命令行即可.
 
-(新特性: 可在域名的`/files`路径下找到对应版本的`v2ray`可执行文件, 包括windows64版本, macos64版本, 以及linux64版本)
+---
+
+当容器启动时, 映射`80`端口用以申请和更新 ssl 证书, `443`端口运行 wss 服务, 确保端口可用且开放.
+为了方便起见, 项目运行成功后, 可根据通过浏览器在域名的`/files`路径下找到`v2ray`常用可执行文件下载, 包括`windows64`版本, `macos64`版本, `linux64`版本, 以及 `V2RayNG` 的 `APK`.
+如果之后想要查看初始化时生成的客户端配置, 执行 `docker exec -it v2ray-wss cat /v2ray/user.config.json`.
 
 ---
 
 可用环境参数(域名必需, 其余均包含默认值):
 
-- DOMAIN: 解析到远程主机的域名.
-- UID: 即 uuid 格式的 id, 默认值为随机生成的 uuid.
-- ACCESS: 访问域名时, 可以穿透 nginx 到达 v2ray 的路径, 默认 v2ray.
-- URL: 将被下载其内容作为首页的url, 设为 none 时不下载, 默认为 github 的 trending 页.
-- EMAIL: 使用certbot申请证书时的邮箱, 默认为 example@gmail.com, 该邮箱用以接收来自 letsencrypt 的通知.
+- `DOMAIN`: 解析到远程主机的域名.
+- `UID`: 即 uuid 格式的 id, 默认值为随机生成的 uuid.
+- `ACCESS`: 访问域名时, 可以穿透 nginx 到达 v2ray 的路径, 默认为随机生成的路径.
+- `HOMEPAGE`: 将被下载其内容作为首页的url, 默认为 github 的 trending 页.
+- `EMAIL`: 使用certbot申请证书时的邮箱, 默认为 fake@gmail.com.
 
 ---
 
@@ -36,19 +40,11 @@ docker run \
 - 私钥路径为 `/etc/letsencrypt/live/$domain/privkey.pem`
 - 证书链路径为 `/etc/letsencrypt/live/$domain/chain.pem`
 
-可以自行映射伪装页, 但注意此时环境参数URL需要设为none, 即`-e URL=none`, 否则在启动时被重写.
-
-可以自行映射证书(证书, 私钥, 证书链), 检测证书存在后不会重新申请, let's encrypt 对证书的申请有频率限制. 
-
-自行映射证书时, 如果容器内缺乏更新相关文件会导致自动更新证书失败, 请自行维护证书的有效期.
-
-映射`80`端口用以申请和更新 ssl 证书, `443`端口运行 wss 服务, 确保端口可被访问.
-
-任何时候需要再次查看生成的客户端配置, 执行命令: `docker exec -it v2ray-wss cat /etc/v2ray/v2ray-wss-cli-config.json`
+可以自行映射证书(证书, 私钥, 证书链), 检测以上均存在后不会重新申请, let's encrypt 对证书的申请有频率限制.
 
 ---
 
-如果容器内 v2ray 版本过旧, 重新构建镜像即可.
+dockerhub 中镜像一般随源码更新(README更新除外), 如有必要可以自行构建镜像:
 
 ```bash
 git clone https://github.com/KanagawaNezumi/docker-v2ray-wss.git
@@ -66,4 +62,4 @@ wget --no-check-certificate https://github.com/teddysun/across/raw/master/bbr.sh
 
 ---
 
-注: v2ray + nginx + websocket + tls 方案, 需要本机与远程主机间有高质量的网络连接, 若有丢包现象, 请使用 [mkcp 方案](https://github.com/KanagawaNezumi/docker-v2ray-mkcp).
+注: v2ray + nginx + websocket + tls 方案, 需要本机与远程主机间有高质量的网络连接, 若有丢包现象, 可以考虑 mkcp 方案.
