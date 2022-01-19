@@ -55,14 +55,15 @@ def _parse_config() -> namedtuple:
     return config
 
 def _sync_homepage(url: str, filepath: str) -> str:
-    html = requests.get(url).text
-    attr_tuple = urllib.parse.urlparse(url)
-    url_base = f'{attr_tuple.scheme or "https"}://{attr_tuple.netloc}/'
-    href_regex = r'href=("|\')/?([^wh].+?)("|\')'
-    new_content = re.sub(href_regex, r'href="{}\2"'.format(url_base), html)
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    with open(filepath, 'w+', encoding='utf-8') as f:
-        f.write(new_content)
+    if not os.path.exists(filepath):
+        html = requests.get(url).text
+        attr_tuple = urllib.parse.urlparse(url)
+        url_base = f'{attr_tuple.scheme or "https"}://{attr_tuple.netloc}/'
+        href_regex = r'href=("|\')/?([^wh].+?)("|\')'
+        new_content = re.sub(href_regex, r'href="{}\2"'.format(url_base), html)
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, 'w+', encoding='utf-8') as f:
+            f.write(new_content)
     return filepath
 
 def _replace_variable(config: namedtuple, text: str) -> str:
