@@ -104,18 +104,33 @@ def _init_bg_tasks(config: namedtuple) -> None:
     os.system(f'nohup sh -c "while sleep 86400; do certbot renew; done >> {renew_log}" &')
     os.system(f'nohup sh -c "{v2ray_path} -config {V2RAY_CONFIG_PATH} >> {V2RAY_INITIALIZE_LOG_PATH}" &')
 
-def _print_info(domain: str) -> None:
+def _gen_v2rayng_config(config: namedtuple) -> dict:
+    return {
+        'address': config.domain,
+        'port': 443,
+        'id': str(config.uid),
+        'encryption': 'none',
+        'network': 'ws',
+        'path': config.access,
+        'tls': 'tls',
+    }
+
+def _print_info(config: namedtuple) -> None:
     print('V2ray client config:')
     os.system(f'cat {V2RAY_USER_CONFIG_PATH}')
     _gen_divider()
+    print('V2rayNG config (Type manually[VLESS])')
+    v2rayng_config = _gen_v2rayng_config(config)
+    print(json.dumps(v2rayng_config, indent=4))
+    _gen_divider()
     print('All services started...')
-    print(f'Access https://{domain}/files to download V2ray binary and V2rayNG APK...')
+    print(f'Access https://{config.domain}/files to download V2ray binary and V2rayNG APK...')
 
 def _initialize(config: namedtuple) -> None:
     _apply_config(config)
     _sync_homepage(config.homepage, HOMEPATE_PATH)
     _ssl_certificate(config.domain, config.email)
-    _print_info(config.domain)
+    _print_info(config)
     open(INITIAL_TAG_PATH, 'w+').close()
 
 if __name__ == '__main__':
