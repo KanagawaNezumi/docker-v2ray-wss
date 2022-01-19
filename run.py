@@ -30,7 +30,7 @@ def _is_initial_run() -> bool:
 def _gen_divider() -> None:
     print('-' * 70)
 
-def _gen_rand_path(length: int = 36) -> str:
+def _gen_rand_path(length: int = 12) -> str:
     chars = '_-_-_-'.join([
         string.ascii_lowercase,
         string.ascii_uppercase,
