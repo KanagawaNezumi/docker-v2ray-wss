@@ -6,7 +6,10 @@
             "protocol": "socks",
             "sniffing": {
                 "enabled": true,
-                "destOverride": ["http", "tls"]
+                "destOverride": [
+                    "http",
+                    "tls"
+                ]
             },
             "settings": {
                 "auth": "noauth",
@@ -25,7 +28,7 @@
                         "users": [
                             {
                                 "id": "$uid",
-                                "encryption":"none"
+                                "encryption": "none"
                             }
                         ]
                     }
@@ -39,25 +42,25 @@
                 }
             },
             "mux": {
-                "enabled": true, 
+                "enabled": true,
                 "concurrency": 128
             }
         },
-
         {
             "protocol": "freedom",
             "settings": {},
             "tag": "direct"
         }
     ],
-
     "routing": {
         "domainStrategy": "IPOnDemand",
-        "rules":[
+        "rules": [
             {
                 "type": "field",
                 "outboundTag": "direct",
-                "domain":["geosite:cn"]
+                "domain": [
+                    "geosite:cn"
+                ]
             },
             {
                 "type": "field",

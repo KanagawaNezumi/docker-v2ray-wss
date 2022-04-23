@@ -1,4 +1,4 @@
-{   
+{
     "log": {
         "loglevel": "info",
         "access": "/var/log/v2ray/access.log",
@@ -7,7 +7,7 @@
     "inbounds": [
         {
             "port": 6324,
-            "listen":"127.0.0.1", 
+            "listen": "127.0.0.1",
             "protocol": "vless",
             "settings": {
                 "clients": [
@@ -20,7 +20,7 @@
             "streamSettings": {
                 "network": "ws",
                 "wsSettings": {
-                "path": "/$access"
+                    "path": "/$access"
                 }
             }
         }
